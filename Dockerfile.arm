@@ -1,0 +1,50 @@
+FROM balenalib/rpi-raspbian:buster AS builder
+RUN [ "cross-build-start" ]
+
+ARG ARCH=armv6l
+ARG RELEASE=10.20.1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	git \
+	curl \
+	tar \
+	xz-utils \
+	rsync \
+	ca-certificates \
+&& rm -rf /var/lib/apt/lists/*
+
+RUN curl -L https://unofficial-builds.nodejs.org/download/release/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz && \
+	mkdir /extract-node && \
+	tar -xJf node.tar.xz -C /extract-node --strip-components=1 && \
+	tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
+	ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
+	node --version && \
+	npm --version
+
+RUN git clone https://github.com/maptiler/tileserver-gl.git /extract-ts && \
+	cd /extract-ts && \
+	node publish.js --no-publish && \
+	cd light && \
+	npm install --production
+
+RUN [ "cross-build-end" ]
+
+FROM balenalib/rpi-raspbian:buster
+RUN [ "cross-build-start" ]
+
+COPY --from=builder /extract-node /usr/local
+COPY --from=builder /extract-ts/light /usr/src/app
+
+RUN ln -s /usr/local/bin/node /usr/local/bin/nodejs
+
+ENV NODE_ENV="production"
+ENV CHOKIDAR_USEPOLLING=1
+ENV CHOKIDAR_INTERVAL=500
+
+RUN [ "cross-build-end" ]
+
+VOLUME /data
+WORKDIR /data
+EXPOSE 80
+
+CMD ["node", "/usr/src/app/", "-p", "80"]
