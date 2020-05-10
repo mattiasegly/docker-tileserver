@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 && rm -rf /var/lib/apt/lists/*
 
 ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-RUN curl -L https://unofficial-builds.nodejs.org/download/release/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz && \
+RUN curl -L https://nodejs.org/dist/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz && \
 	mkdir /extract-node && \
 	tar -xJf node.tar.xz -C /extract-node --strip-components=1 && \
 	tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
