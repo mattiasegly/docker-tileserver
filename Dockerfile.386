@@ -1,7 +1,7 @@
-FROM amd64/debian:buster AS builder
+FROM i386/debian:buster AS builder
 
-ARG ARCH=x64
-ARG RELEASE=10.20.1
+ARG ARCH=x86
+ARG RELEASE=10.21.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	ca-certificates \
 && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://nodejs.org/dist/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz && \
+RUN curl -L https://unofficial-builds.nodejs.org/download/release/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz && \
 	mkdir /extract-node && \
 	tar -xJf node.tar.xz -C /extract-node --strip-components=1 && \
 	tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
@@ -26,7 +26,7 @@ RUN git clone https://github.com/maptiler/tileserver-gl.git /extract-ts && \
 	cd light && \
 	npm install --production
 
-FROM debian:buster
+FROM i386/debian:buster
 
 COPY --from=builder /extract-node /usr/local
 COPY --from=builder /extract-ts/light /usr/src/app

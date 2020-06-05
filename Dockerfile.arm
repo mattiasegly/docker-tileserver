@@ -2,7 +2,7 @@ FROM balenalib/rpi-raspbian:buster AS builder
 RUN [ "cross-build-start" ]
 
 ARG ARCH=armv6l
-ARG RELEASE=10.20.1
+ARG RELEASE=10.21.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
