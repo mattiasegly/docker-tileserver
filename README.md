@@ -8,10 +8,10 @@ Running with tag :latest should work on all Raspberry Pi models and standard 64-
 Run with:<BR>
 docker run --rm -d \\\
 -v $(pwd):/data \\\
--p 8080:80 \\\
+-p 8080:8080 \\\
 mattiasegly/rpi-tileserver:latest
 
 I know nothing about code, so assume that everything here sets the world on fire.<BR>
 Use at your own peril.
 
-20200605
+20200624

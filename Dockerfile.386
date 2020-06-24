@@ -1,46 +1,36 @@
-FROM i386/debian:buster AS builder
+FROM i386/debian:buster as builder
 
+# Last working release from unofficial builds. 
+ARG SOURCE=https://unofficial-builds.nodejs.org/download/release
+ARG RELEASE=12.16.3
 ARG ARCH=x86
-ARG RELEASE=10.21.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-	git \
+    ca-certificates \
 	curl \
 	tar \
 	xz-utils \
-	rsync \
-	python \
+	python3 \
 	build-essential \
-	ca-certificates \
-&& rm -rf /var/lib/apt/lists/*
+&& rm -rf /var/lib/apt/lists/* \
+&& update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
-RUN curl -L https://unofficial-builds.nodejs.org/download/release/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz && \
+RUN curl -L $SOURCE/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz && \
 	mkdir /extract-node && \
 	tar -xJf node.tar.xz -C /extract-node --strip-components=1 && \
 	tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
-	ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
 	node --version && \
-	npm --version
-
-RUN git clone https://github.com/maptiler/tileserver-gl.git /extract-ts && \
-	cd /extract-ts && \
-	node publish.js --no-publish && \
-	cd light && \
-	npm install --production
+	npm_config_user=root npm install --global --production tileserver-gl-light
 
 FROM i386/debian:buster
 
 COPY --from=builder /extract-node /usr/local
-COPY --from=builder /extract-ts/light /usr/src/app
+COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules/
 
-RUN ln -s /usr/local/bin/node /usr/local/bin/nodejs
-
-ENV NODE_ENV="production"
-ENV CHOKIDAR_USEPOLLING=1
-ENV CHOKIDAR_INTERVAL=500
+RUN ln -s ../lib/node_modules/tileserver-gl-light/src/main.js /usr/local/bin/tileserver-gl-light
 
 VOLUME /data
 WORKDIR /data
-EXPOSE 80
+EXPOSE 8080
 
-CMD ["node", "/usr/src/app/", "-p", "80"]
+CMD ["tileserver-gl-light"]
