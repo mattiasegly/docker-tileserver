@@ -19,7 +19,9 @@ RUN curl -L $SOURCE/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz &
 	tar -xJf node.tar.xz -C /extract-node --strip-components=1 && \
 	tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
 	node --version && \
-	npm_config_user=root npm install --global --production tileserver-gl-light
+	npm config set unsafe-perm true && \
+	npm config set user root && \
+	npm install --global --production tileserver-gl-light
 
 FROM amd64/debian:buster
 
@@ -27,6 +29,10 @@ COPY --from=builder /extract-node /usr/local
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules/
 
 RUN ln -s ../lib/node_modules/tileserver-gl-light/src/main.js /usr/local/bin/tileserver-gl-light
+
+ENV NODE_ENV="production"
+ENV CHOKIDAR_USEPOLLING=1
+ENV CHOKIDAR_INTERVAL=500
 
 VOLUME /data
 WORKDIR /data
