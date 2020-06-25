@@ -1,5 +1,7 @@
 FROM i386/debian:buster as builder
 
+ENV NODE_ENV="production"
+
 # Last working release from unofficial builds. 
 ARG SOURCE=https://unofficial-builds.nodejs.org/download/release
 ARG RELEASE=12.16.3
@@ -22,7 +24,7 @@ RUN curl -L $SOURCE/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz &
 	node --version && \
 	npm config set unsafe-perm true && \
 	npm config set user root && \
-	npm install --global --production tileserver-gl-light
+	npm install --global --only=production tileserver-gl-light
 
 FROM i386/debian:buster
 

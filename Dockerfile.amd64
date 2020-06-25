@@ -1,5 +1,7 @@
 FROM amd64/debian:buster as builder
 
+ENV NODE_ENV="production"
+
 ARG SOURCE=https://nodejs.org/download/release
 ARG RELEASE=14.4.0
 ARG ARCH=x64
@@ -21,7 +23,7 @@ RUN curl -L $SOURCE/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz &
 	node --version && \
 	npm config set unsafe-perm true && \
 	npm config set user root && \
-	npm install --global --production tileserver-gl-light
+	npm install --global --only=production tileserver-gl-light
 
 FROM amd64/debian:buster
 
