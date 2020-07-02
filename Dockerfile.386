@@ -8,7 +8,7 @@ ARG RELEASE=12.16.3
 ARG ARCH=x86
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
+	ca-certificates \
 	curl \
 	tar \
 	xz-utils \
@@ -27,6 +27,15 @@ RUN curl -L $SOURCE/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz &
 	npm install --global --only=production tileserver-gl-light
 
 FROM i386/debian:buster
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	ca-certificates \
+	libatomic1 \
+	libbrotli1 \
+	libc-ares2 \
+	libicu63 \
+	libuv1 \
+&& rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /extract-node /usr/local
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules/
