@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	curl \
 	tar \
 	xz-utils \
+	libatomic1 \
 	python3 \
 	build-essential \
 && rm -rf /var/lib/apt/lists/* \
@@ -50,6 +51,8 @@ RUN ln -s ../lib/node_modules/tileserver-gl-light/src/main.js /usr/local/bin/til
 ENV NODE_ENV="production"
 ENV CHOKIDAR_USEPOLLING=1
 ENV CHOKIDAR_INTERVAL=500
+
+RUN [ "cross-build-end" ]
 
 VOLUME /data
 WORKDIR /data
