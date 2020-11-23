@@ -7,39 +7,21 @@ ARG RELEASE=15.2.1
 ARG ARCH=x86
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-#	ca-certificates \
-#	curl \
-#	tar \
-	xz-utils \
-#	libatomic1 \
-#	libbrotli1 \
-#	libc-ares2 \
-#	libicu63 \
-#	libuv1 \
 	python3 \
 	build-essential \
 && rm -rf /var/lib/apt/lists/* \
 && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
-RUN curl -L $SOURCE/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.xz -o node.tar.xz && \
+RUN curl -L $SOURCE/v$RELEASE/node-v$RELEASE-linux-$ARCH.tar.gz -o node.tar.gz && \
 	mkdir /extract-node && \
-	tar -xJf node.tar.xz -C /extract-node --strip-components=1 && \
-	tar -xJf node.tar.xz -C /usr/local --strip-components=1 && \
+	tar -xzf node.tar.gz -C /extract-node --strip-components=1 && \
+	tar -xzf node.tar.gz -C /usr/local --strip-components=1 && \
 	node --version && \
 	npm config set unsafe-perm true && \
 	npm config set user root && \
 	npm install --global --only=production tileserver-gl-light
 
 FROM mattiasegly/base-image:386
-
-#RUN apt-get update && apt-get install -y --no-install-recommends \
-#	ca-certificates \
-#	libatomic1 \
-#	libbrotli1 \
-#	libc-ares2 \
-#	libicu63 \
-#	libuv1 \
-#&& rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /extract-node /usr/local
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules/
